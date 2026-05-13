@@ -1,5 +1,16 @@
-import { describe, it, expect } from 'vitest';
-import { escapeAppleScript, buildFullCommand, SHELL_INIT } from './applescript-utils.js';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+vi.mock('child_process', () => ({
+  execFile: vi.fn(),
+}));
+
+import {
+  escapeAppleScript,
+  buildFullCommand,
+  SHELL_INIT,
+  runAppleScript,
+} from './applescript-utils.js';
+import { execFile } from 'child_process';
 
 describe('escapeAppleScript', () => {
   it('escapes backslashes', () => {
@@ -61,5 +72,29 @@ describe('SHELL_INIT', () => {
   it('disables bang history for both zsh and bash', () => {
     expect(SHELL_INIT).toContain('unsetopt BANG_HIST');
     expect(SHELL_INIT).toContain('set +H');
+  });
+});
+
+describe('runAppleScript', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('resolves when osascript succeeds', async () => {
+    vi.mocked(execFile).mockImplementation((_cmd, _args, cb) => cb(null));
+
+    await expect(runAppleScript('tell app "Finder" to activate')).resolves.toBeUndefined();
+    expect(execFile).toHaveBeenCalledWith(
+      'osascript',
+      ['-e', 'tell app "Finder" to activate'],
+      expect.any(Function),
+    );
+  });
+
+  it('rejects when osascript fails', async () => {
+    const error = new Error('osascript: syntax error');
+    vi.mocked(execFile).mockImplementation((_cmd, _args, cb) => cb(error));
+
+    await expect(runAppleScript('bad script')).rejects.toThrow('osascript: syntax error');
   });
 });

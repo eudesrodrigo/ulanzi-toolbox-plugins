@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 vi.mock('../executors/executor.js', () => ({
   executeCommand: vi.fn(() => Promise.resolve()),
@@ -12,6 +12,7 @@ vi.mock('fs', () => ({
 
 import RunCommandAction from './RunCommandAction.js';
 import { executeCommand } from '../executors/executor.js';
+import { existsSync, readFileSync, unlinkSync } from 'fs';
 
 function createMockUD() {
   return { showAlert: vi.fn() };
@@ -87,6 +88,71 @@ describe('RunCommandAction', () => {
         'ls',
         expect.objectContaining({ terminalId: 'iterm' }),
       );
+    });
+  });
+
+  describe('pollExitCode', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('reads and cleans up exit file when it appears', () => {
+      vi.mocked(existsSync).mockReturnValueOnce(true);
+      action.pollExitCode('/tmp/exit-file');
+
+      vi.advanceTimersByTime(200);
+
+      expect(readFileSync).toHaveBeenCalledWith('/tmp/exit-file', 'utf-8');
+      expect(unlinkSync).toHaveBeenCalledWith('/tmp/exit-file');
+    });
+
+    it('stops polling when action is deactivated', () => {
+      action.active = false;
+      action.pollExitCode('/tmp/exit-file');
+
+      vi.advanceTimersByTime(200);
+
+      expect(existsSync).not.toHaveBeenCalled();
+    });
+
+    it('retries when exit file does not exist yet', () => {
+      vi.mocked(existsSync).mockReturnValueOnce(false).mockReturnValueOnce(true);
+      action.pollExitCode('/tmp/exit-file');
+
+      vi.advanceTimersByTime(200);
+      expect(existsSync).toHaveBeenCalledTimes(1);
+      expect(readFileSync).not.toHaveBeenCalled();
+
+      vi.advanceTimersByTime(200);
+      expect(existsSync).toHaveBeenCalledTimes(2);
+      expect(readFileSync).toHaveBeenCalled();
+    });
+
+    it('stops polling after timeout', () => {
+      vi.mocked(existsSync).mockReturnValue(false);
+      action.pollExitCode('/tmp/exit-file');
+
+      vi.advanceTimersByTime(31000);
+
+      const callCount = vi.mocked(existsSync).mock.calls.length;
+      vi.advanceTimersByTime(1000);
+      expect(vi.mocked(existsSync).mock.calls.length).toBe(callCount);
+    });
+
+    it('handles error when exit file disappears between check and read', () => {
+      vi.mocked(existsSync).mockReturnValueOnce(true);
+      vi.mocked(readFileSync).mockImplementationOnce(() => {
+        throw new Error('ENOENT');
+      });
+
+      action.pollExitCode('/tmp/exit-file');
+      vi.advanceTimersByTime(200);
+
+      expect(existsSync).toHaveBeenCalled();
     });
   });
 });
