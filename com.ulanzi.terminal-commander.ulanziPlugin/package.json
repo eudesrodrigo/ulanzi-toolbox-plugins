@@ -1,0 +1,12 @@
+{
+  "name": "terminal-commander",
+  "version": "1.0.0",
+  "description": "Execute terminal commands with a single button press on your Ulanzi D200",
+  "main": "plugin/app.js",
+  "type": "module",
+  "author": "Eudes Oliveira",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

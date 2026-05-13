@@ -1,0 +1,49 @@
+{
+  "Author": "Eudes Oliveira",
+  "Name": "Dev Tools",
+  "Description": "Execute terminal commands with a single button press",
+  "Icon": "assets/store-icon.png",
+  "Version": "1.0.0",
+  "Category": "Dev Tools",
+  "CategoryIcon": "assets/store-icon.png",
+  "CodePath": "plugin/app.js",
+  "Type": "JavaScript",
+  "UUID": "com.ulanzi.ulanzistudio.terminalcommander",
+  "Actions": [
+    {
+      "Name": "Run Command",
+      "Icon": "plugin/icons/run-command/idle.png",
+      "PropertyInspectorPath": "property-inspector/run-command/inspector.html",
+      "States": [{ "Name": "Idle", "Image": "plugin/icons/run-command/idle.png" }],
+      "Tooltip": "Execute a terminal command",
+      "UUID": "com.ulanzi.ulanzistudio.terminalcommander.runcommand",
+      "SupportedInMultiActions": true,
+      "DisableAutomaticStates": true,
+      "Controllers": ["Keypad"]
+    },
+    {
+      "Name": "Run Script",
+      "Icon": "plugin/icons/run-script/idle.png",
+      "PropertyInspectorPath": "property-inspector/run-script/inspector.html",
+      "States": [{ "Name": "Idle", "Image": "plugin/icons/run-script/idle.png" }],
+      "Tooltip": "Execute a script file",
+      "UUID": "com.ulanzi.ulanzistudio.terminalcommander.runscript",
+      "SupportedInMultiActions": true,
+      "DisableAutomaticStates": true,
+      "Controllers": ["Keypad"]
+    },
+    {
+      "Name": "SSH Command",
+      "Icon": "plugin/icons/ssh-command/idle.png",
+      "PropertyInspectorPath": "property-inspector/ssh-command/inspector.html",
+      "States": [{ "Name": "Idle", "Image": "plugin/icons/ssh-command/idle.png" }],
+      "Tooltip": "Execute a command on a remote host via SSH",
+      "UUID": "com.ulanzi.ulanzistudio.terminalcommander.sshcommand",
+      "SupportedInMultiActions": true,
+      "DisableAutomaticStates": true,
+      "Controllers": ["Keypad"]
+    }
+  ],
+  "OS": [{ "Platform": "mac", "MinimumVersion": "12.0" }],
+  "Software": { "MinVersion": "3.0.0" }
+}

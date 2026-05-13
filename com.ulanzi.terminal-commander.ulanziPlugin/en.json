@@ -1,0 +1,20 @@
+{
+  "Localization": {
+    "Run Command": "Run Command",
+    "Run Script": "Run Script",
+    "SSH Command": "SSH Command",
+    "Label": "Label",
+    "Command": "Command",
+    "Directory": "Directory",
+    "Terminal": "Terminal",
+    "Script": "Script",
+    "Arguments": "Arguments",
+    "Host": "Host",
+    "Auto-detect": "Auto-detect",
+    "Browse...": "Browse...",
+    "Test": "Test",
+    "Running...": "Running...",
+    "Success": "Success",
+    "Error": "Error"
+  }
+}
