@@ -6,9 +6,14 @@ export default class RunScriptAction extends RunCommandAction {
     const script = this.settings.script || '';
     if (!script) return '';
 
-    const args = this.settings.args || '';
     const safeScript = script.replace(/'/g, "'\\''");
-    return args ? `'${safeScript}' ${args}` : `'${safeScript}'`;
+    const args = this.settings.args || '';
+    const safeArgs = args
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((a) => `'${a.replace(/'/g, "'\\''")}'`)
+      .join(' ');
+    return safeArgs ? `'${safeScript}' ${safeArgs}` : `'${safeScript}'`;
   }
 
   async execute() {

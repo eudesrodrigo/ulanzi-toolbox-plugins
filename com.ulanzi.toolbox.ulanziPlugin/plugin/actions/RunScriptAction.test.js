@@ -33,9 +33,19 @@ describe('RunScriptAction', () => {
       expect(action.buildCommand()).toBe("'/path/to/deploy.sh'");
     });
 
-    it('appends args after the quoted script', () => {
+    it('appends individually escaped args after the quoted script', () => {
       action.updateSettings({ script: '/bin/run.sh', args: '--verbose --dry-run' });
-      expect(action.buildCommand()).toBe("'/bin/run.sh' --verbose --dry-run");
+      expect(action.buildCommand()).toBe("'/bin/run.sh' '--verbose' '--dry-run'");
+    });
+
+    it('neutralizes shell injection in args', () => {
+      action.updateSettings({ script: '/bin/run.sh', args: '--flag; rm -rf ~' });
+      expect(action.buildCommand()).toBe("'/bin/run.sh' '--flag;' 'rm' '-rf' '~'");
+    });
+
+    it('escapes single quotes in args', () => {
+      action.updateSettings({ script: '/bin/run.sh', args: "--name='test'" });
+      expect(action.buildCommand()).toBe("'/bin/run.sh' '--name='\\''test'\\'''");
     });
 
     it('escapes single quotes in script path', () => {
