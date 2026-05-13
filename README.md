@@ -5,13 +5,13 @@ Execute terminal commands, scripts, and SSH commands with a single button press 
 ## Install
 
 ```sh
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/eudeslauriano/ulanzi-toolbox-plugins/main/install.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/eudesrodrigo/ulanzi-toolbox-plugins/main/install.sh)"
 ```
 
 Or clone and install locally:
 
 ```sh
-git clone https://github.com/eudeslauriano/ulanzi-toolbox-plugins.git
+git clone https://github.com/eudesrodrigo/ulanzi-toolbox-plugins.git
 cd ulanzi-toolbox-plugins
 ./install.sh
 ```
@@ -35,7 +35,7 @@ Each action shows real-time status on the key: idle, running, success, or error.
 ## Uninstall
 
 ```sh
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/eudeslauriano/ulanzi-toolbox-plugins/main/uninstall.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/eudesrodrigo/ulanzi-toolbox-plugins/main/uninstall.sh)"
 ```
 
 ## License

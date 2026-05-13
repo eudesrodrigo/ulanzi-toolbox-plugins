@@ -4,7 +4,7 @@ set -e
 PLUGIN_NAME="com.ulanzi.toolbox.ulanziPlugin"
 PLUGIN_DIR="${HOME}/Library/Application Support/Ulanzi/UlanziDeck/Plugins"
 ICONS_DIR="${HOME}/Library/Application Support/Ulanzi/UlanziDeck/Icons"
-REPO_URL="https://github.com/eudeslauriano/ulanzi-toolbox-plugins"
+REPO_URL="https://github.com/eudesrodrigo/ulanzi-toolbox-plugins"
 ULANZI_APP="/Applications/Ulanzi Studio.app"
 NODE_BUNDLED="${ULANZI_APP}/Contents/MacOS/NodeJS/node"
 
