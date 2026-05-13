@@ -40,10 +40,20 @@ EOF
 printf "${RESET}"
 printf "  ${BOLD}Ulanzi D200 Plugin Installer${RESET}\n\n"
 
-# --- Cleanup on error -------------------------------------------------
+# --- Cleanup / rollback -----------------------------------------------
 TMPDIR_CLONE=""
+BACKUP=""
+DEST="${PLUGIN_DIR}/${PLUGIN_NAME}"
 cleanup() {
+  local exit_code=$?
   if [ -n "$TMPDIR_CLONE" ]; then rm -rf "$TMPDIR_CLONE"; fi
+  if [ $exit_code -ne 0 ] && [ -n "$BACKUP" ] && [ -d "$BACKUP" ]; then
+    printf "\n"
+    warn "Installation failed — restoring previous version..."
+    rm -rf "$DEST" 2>/dev/null
+    mv "$BACKUP" "$DEST"
+    ok "Previous version restored"
+  fi
 }
 trap cleanup EXIT
 
@@ -105,8 +115,6 @@ else
 fi
 
 # --- Backup existing --------------------------------------------------
-DEST="${PLUGIN_DIR}/${PLUGIN_NAME}"
-
 if [ -d "$DEST" ]; then
   BACKUP="${DEST}.backup-$(date +%Y%m%d-%H%M%S)"
   warn "Existing installation found — backing up to $(basename "$BACKUP")"
@@ -152,6 +160,13 @@ if pgrep -xq "Ulanzi Studio" 2>/dev/null; then
     ok "Ulanzi Studio restarted"
   fi
 fi
+
+# --- Cleanup backups --------------------------------------------------
+if [ -n "$BACKUP" ] && [ -d "$BACKUP" ]; then
+  rm -rf "$BACKUP"
+  ok "Previous installation backup removed"
+fi
+find "$PLUGIN_DIR" -maxdepth 1 -name "${PLUGIN_NAME}.backup-*" -type d -exec rm -rf {} + 2>/dev/null
 
 # --- Done -------------------------------------------------------------
 printf "\n"
