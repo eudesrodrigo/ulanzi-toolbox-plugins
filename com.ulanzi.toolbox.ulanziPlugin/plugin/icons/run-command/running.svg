@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 196 196">
+  <rect width="196" height="196" rx="16" fill="#1e1f22"/>
+  <rect x="28" y="38" width="140" height="100" rx="10" fill="#2a2b2f" stroke="#00FFE6" stroke-width="2"/>
+  <text x="52" y="100" font-family="SF Mono, Menlo, monospace" font-size="36" font-weight="700" fill="#00FFE6">❯_</text>
+  <circle cx="148" cy="58" r="12" fill="none" stroke="#00FFE6" stroke-width="2.5" stroke-dasharray="18 56" stroke-linecap="round">
+    <animateTransform attributeName="transform" type="rotate" from="0 148 58" to="360 148 58" dur="1s" repeatCount="indefinite"/>
+  </circle>
+  <rect x="28" y="148" width="140" height="3" rx="1.5" fill="#00FFE6" opacity="0.6"/>
+</svg>

@@ -8,7 +8,7 @@
   "CategoryIcon": "assets/store-icon.png",
   "CodePath": "plugin/app.js",
   "Type": "JavaScript",
-  "UUID": "com.ulanzi.ulanzistudio.terminalcommander",
+  "UUID": "com.ulanzi.ulanzistudio.toolbox",
   "Actions": [
     {
       "Name": "Run Command",
@@ -16,7 +16,7 @@
       "PropertyInspectorPath": "property-inspector/run-command/inspector.html",
       "States": [{ "Name": "Idle", "Image": "plugin/icons/run-command/idle.png" }],
       "Tooltip": "Execute a terminal command",
-      "UUID": "com.ulanzi.ulanzistudio.terminalcommander.runcommand",
+      "UUID": "com.ulanzi.ulanzistudio.toolbox.runcommand",
       "SupportedInMultiActions": true,
       "DisableAutomaticStates": true,
       "Controllers": ["Keypad"]
@@ -27,7 +27,7 @@
       "PropertyInspectorPath": "property-inspector/run-script/inspector.html",
       "States": [{ "Name": "Idle", "Image": "plugin/icons/run-script/idle.png" }],
       "Tooltip": "Execute a script file",
-      "UUID": "com.ulanzi.ulanzistudio.terminalcommander.runscript",
+      "UUID": "com.ulanzi.ulanzistudio.toolbox.runscript",
       "SupportedInMultiActions": true,
       "DisableAutomaticStates": true,
       "Controllers": ["Keypad"]
@@ -38,7 +38,7 @@
       "PropertyInspectorPath": "property-inspector/ssh-command/inspector.html",
       "States": [{ "Name": "Idle", "Image": "plugin/icons/ssh-command/idle.png" }],
       "Tooltip": "Execute a command on a remote host via SSH",
-      "UUID": "com.ulanzi.ulanzistudio.terminalcommander.sshcommand",
+      "UUID": "com.ulanzi.ulanzistudio.toolbox.sshcommand",
       "SupportedInMultiActions": true,
       "DisableAutomaticStates": true,
       "Controllers": ["Keypad"]

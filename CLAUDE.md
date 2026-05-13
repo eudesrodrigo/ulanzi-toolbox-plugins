@@ -1,10 +1,10 @@
-# Ulanzi D200 Plugins
+# Ulanzi Toolbox Plugins
 
 This repo contains plugins for the Ulanzi D200 stream deck.
 
 ## Reference Implementation
 
-`com.ulanzi.terminal-commander.ulanziPlugin/` is a working, tested plugin. Use it as the source of patterns and conventions.
+`com.ulanzi.toolbox.ulanziPlugin/` is a working, tested plugin. Use it as the source of patterns and conventions.
 
 ## Plugin Installation
 

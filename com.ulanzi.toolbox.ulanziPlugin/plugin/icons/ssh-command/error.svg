@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 196 196">
+  <rect width="196" height="196" rx="16" fill="#3a1a1a"/>
+  <circle cx="98" cy="78" r="40" fill="none" stroke="#FF1000" stroke-width="2" opacity="0.5"/>
+  <ellipse cx="98" cy="78" rx="40" ry="16" fill="none" stroke="#FF1000" stroke-width="2" opacity="0.5"/>
+  <ellipse cx="98" cy="78" rx="16" ry="40" fill="none" stroke="#FF1000" stroke-width="1.5" opacity="0.5"/>
+  <circle cx="98" cy="78" r="6" fill="#FF1000"/>
+  <circle cx="148" cy="48" r="18" fill="#FF1000"/>
+  <line x1="140" y1="40" x2="156" y2="56" stroke="#3a1a1a" stroke-width="3" stroke-linecap="round"/>
+  <line x1="156" y1="40" x2="140" y2="56" stroke="#3a1a1a" stroke-width="3" stroke-linecap="round"/>
+  <text x="98" y="148" text-anchor="middle" font-family="SF Mono, Menlo, monospace" font-size="20" font-weight="600" fill="#FF4444">SSH</text>
+  <rect x="48" y="168" width="100" height="3" rx="1.5" fill="#FF1000" opacity="0.5"/>
+</svg>

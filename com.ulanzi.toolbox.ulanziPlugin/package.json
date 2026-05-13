@@ -1,5 +1,5 @@
 {
-  "name": "terminal-commander",
+  "name": "toolbox",
   "version": "1.0.0",
   "description": "Execute terminal commands with a single button press on your Ulanzi D200",
   "main": "plugin/app.js",

@@ -4,7 +4,7 @@ import RunCommandAction from './actions/RunCommandAction.js';
 import RunScriptAction from './actions/RunScriptAction.js';
 import SshCommandAction from './actions/SshCommandAction.js';
 
-const PLUGIN_UUID = 'com.ulanzi.ulanzistudio.terminalcommander';
+const PLUGIN_UUID = 'com.ulanzi.ulanzistudio.toolbox';
 
 const ACTION_MAP = {
   [`${PLUGIN_UUID}.runcommand`]: RunCommandAction,

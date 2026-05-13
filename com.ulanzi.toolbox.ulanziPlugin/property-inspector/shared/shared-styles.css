@@ -1,0 +1,97 @@
+:root {
+  --tc-accent: #00ffe6;
+  --tc-accent-hover: #00ddc8;
+  --tc-accent-text: #1e1f22;
+  --tc-success: #3fd88a;
+  --tc-error: #ff1000;
+}
+
+.tc-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--tc-accent);
+  margin: 16px 0 8px 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--uspi-bordercolor, #3a3a3a);
+}
+
+.tc-browse-group {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.tc-browse-group input {
+  flex: 1;
+  color: var(--uspi-textcolor, #fff);
+  background: var(--uspi-inputbg, #18191b);
+}
+
+.tc-browse-btn {
+  width: 32px;
+  height: 32px;
+  background: var(--uspi-inputbg, #18191b);
+  border: 1px solid var(--uspi-bordercolor, #3a3a3a);
+  border-radius: var(--uspi-borderradius, 4px);
+  color: var(--uspi-textcolor, #fff);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+  transition: border-color 0.15s;
+}
+
+.tc-browse-btn:hover {
+  border-color: var(--tc-accent);
+}
+
+textarea.uspi-item-value {
+  min-height: 52px;
+  max-height: 120px;
+  resize: vertical;
+  font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.tc-test-section {
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 1px solid var(--uspi-bordercolor, #3a3a3a);
+  display: flex;
+  justify-content: center;
+}
+
+.tc-test-btn {
+  width: 100%;
+  max-width: 200px;
+  height: 36px;
+  background: var(--tc-accent);
+  color: var(--tc-accent-text);
+  border: none;
+  border-radius: var(--uspi-borderradius, 4px);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    transform 0.1s;
+  letter-spacing: 0.3px;
+}
+
+.tc-test-btn:hover {
+  background: var(--tc-accent-hover);
+}
+
+.tc-test-btn:active {
+  transform: scale(0.97);
+}
+
+.tc-test-btn.testing {
+  opacity: 0.6;
+  pointer-events: none;
+}
