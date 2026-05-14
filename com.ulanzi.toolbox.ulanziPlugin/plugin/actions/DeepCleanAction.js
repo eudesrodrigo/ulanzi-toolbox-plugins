@@ -9,15 +9,51 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const SCRIPT_PATH = resolve(__dirname, '../../scripts/deep-clean.sh');
 const POLL_INTERVAL_MS = 200;
 const DISK_POLL_INTERVAL_MS = 60000;
+const CANVAS_SIZE = 300;
 
-export function parseDfOutput(stdout) {
-  const lines = stdout.trim().split('\n');
-  if (lines.length < 2) return null;
-  const cols = lines[1].split(/\s+/);
-  const total = parseInt(cols[1], 10);
-  const avail = parseInt(cols[3], 10);
-  if (isNaN(total) || isNaN(avail)) return null;
-  return { free: avail, total };
+export function parseDiskutilOutput(stdout) {
+  const lines = stdout.split('\n');
+  let total = null;
+  let free = null;
+  for (const line of lines) {
+    if (line.includes('Container Total Space:')) {
+      const match = line.split(':')[1]?.trim().split(' GB')[0];
+      if (match) total = parseFloat(match);
+    } else if (line.includes('Container Free Space:')) {
+      const match = line.split(':')[1]?.trim().split(' GB')[0];
+      if (match) free = parseFloat(match);
+    }
+  }
+  if (total === null || free === null || isNaN(total) || isNaN(free)) return null;
+  return { free: Math.round(free), total: Math.round(total) };
+}
+
+export function generateIdleIcon(free, total) {
+  const pct = total > 0 ? Math.round(((total - free) / total) * 100) : 0;
+  const barWidth = 220;
+  const filled = Math.round((pct / 100) * barWidth);
+  const barColor = pct >= 90 ? '#ff4444' : pct >= 75 ? '#ffaa00' : '#00FFE6';
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${CANVAS_SIZE} ${CANVAS_SIZE}">
+  <rect width="${CANVAS_SIZE}" height="${CANVAS_SIZE}" fill="#1e1f22"/>
+  <text x="150" y="80" text-anchor="middle" font-family="Arial,sans-serif" font-size="32" fill="#888">${pct}% used</text>
+  <rect x="40" y="100" width="${barWidth}" height="18" rx="9" fill="#333"/>
+  <rect x="40" y="100" width="${filled}" height="18" rx="9" fill="${barColor}"/>
+  <text x="150" y="190" text-anchor="middle" font-family="Arial,sans-serif" font-size="56" font-weight="bold" fill="#fff">${free}/${total}</text>
+  <text x="150" y="245" text-anchor="middle" font-family="Arial,sans-serif" font-size="38" fill="#00FFE6">GB</text>
+</svg>`;
+  return 'data:image/svg+xml;base64,' + Buffer.from(svg, 'utf8').toString('base64');
+}
+
+export function generateRunningIcon() {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${CANVAS_SIZE} ${CANVAS_SIZE}">
+  <rect width="${CANVAS_SIZE}" height="${CANVAS_SIZE}" fill="#1e1f22"/>
+  <text x="150" y="120" text-anchor="middle" font-family="Arial,sans-serif" font-size="30" fill="#888">cleaning</text>
+  <circle cx="110" cy="175" r="12" fill="#00FFE6" opacity="0.3"/>
+  <circle cx="150" cy="175" r="12" fill="#00FFE6" opacity="0.6"/>
+  <circle cx="190" cy="175" r="12" fill="#00FFE6"/>
+  <text x="150" y="250" text-anchor="middle" font-family="Arial,sans-serif" font-size="26" fill="#555">please wait</text>
+</svg>`;
+  return 'data:image/svg+xml;base64,' + Buffer.from(svg, 'utf8').toString('base64');
 }
 
 export default class DeepCleanAction {
@@ -69,18 +105,18 @@ export default class DeepCleanAction {
   refreshDiskDisplay() {
     this.getDiskUsage((usage) => {
       if (usage) {
-        this.$UD.setStateIcon(this.context, 0, `${usage.free}/${usage.total} GB`);
+        this.$UD.setBaseDataIcon(this.context, generateIdleIcon(usage.free, usage.total));
       }
     });
   }
 
   getDiskUsage(callback) {
-    exec('df -g /', (err, stdout) => {
+    exec('diskutil info /', (err, stdout) => {
       if (err) {
         callback(null);
         return;
       }
-      callback(parseDfOutput(stdout));
+      callback(parseDiskutilOutput(stdout));
     });
   }
 
@@ -93,7 +129,7 @@ export default class DeepCleanAction {
     this.running = true;
     this.stopPolling();
 
-    this.$UD.setStateIcon(this.context, 1, '...');
+    this.$UD.setBaseDataIcon(this.context, generateRunningIcon());
 
     const exitFile = join(
       tmpdir(),
@@ -102,14 +138,10 @@ export default class DeepCleanAction {
 
     const command = this.buildCommand();
     const opts = {
-      label: this.settings.label || 'Deep Clean',
+      label: 'Deep Clean',
       terminalId: this.settings.terminal,
       exitFile,
     };
-
-    if (this.settings.projectsDir) {
-      opts.cwd = this.settings.projectsDir;
-    }
 
     try {
       await executeCommand(command, opts);

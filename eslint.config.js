@@ -20,6 +20,7 @@ export default [
         setInterval: 'readonly',
         clearInterval: 'readonly',
         URL: 'readonly',
+        Buffer: 'readonly',
       },
     },
     rules: {

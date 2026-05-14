@@ -1,5 +1,5 @@
 #!/bin/bash
-set -uo pipefail
+set -o pipefail
 
 # --- Configuration --------------------------------------------------------
 PROJECTS_DIR="${DEEP_CLEAN_PROJECTS_DIR:-$HOME/Projects}"
@@ -35,7 +35,7 @@ ITEM_COUNT=0
 bytes_to_human() {
   local bytes=$1
   if [ "$bytes" -ge 1073741824 ]; then
-    printf "%.1f GB" "$(echo "scale=1; $bytes / 1073741824" | bc)"
+    awk "BEGIN {printf \"%.1f GB\", $bytes / 1073741824}"
   elif [ "$bytes" -ge 1048576 ]; then
     printf "%d MB" "$((bytes / 1048576))"
   else
@@ -86,6 +86,7 @@ get_disk_info() {
 print_disk_bar() {
   local total used avail pct
   read -r total used avail <<< "$(get_disk_info)"
+  used=$((total - avail))
   if [ "$total" -gt 0 ]; then
     pct=$((used * 100 / total))
   else
@@ -313,21 +314,15 @@ for s in "${ITEM_SIZES[@]}"; do total_bytes=$((total_bytes + s)); done
 printf "  Found ${BOLD}$(bytes_to_human $total_bytes)${RESET} reclaimable across ${BOLD}${ITEM_COUNT}${RESET} items.\n\n"
 
 current_cat=""
-cat_total=0
-i=0
-# First pass: compute category totals
-declare -A CAT_TOTALS
-for ((i=0; i<ITEM_COUNT; i++)); do
-  cat="${ITEM_CATEGORIES[$i]}"
-  CAT_TOTALS["$cat"]=$(( ${CAT_TOTALS["$cat"]:-0} + ${ITEM_SIZES[$i]} ))
-done
-
-current_cat=""
 for ((i=0; i<ITEM_COUNT; i++)); do
   cat="${ITEM_CATEGORIES[$i]}"
   if [ "$cat" != "$current_cat" ]; then
     current_cat="$cat"
-    cat_human=$(bytes_to_human "${CAT_TOTALS[$cat]}")
+    cat_bytes=0
+    for ((j=i; j<ITEM_COUNT; j++)); do
+      [ "${ITEM_CATEGORIES[$j]}" = "$cat" ] && cat_bytes=$((cat_bytes + ${ITEM_SIZES[$j]}))
+    done
+    cat_human=$(bytes_to_human "$cat_bytes")
     printf "  ${DIM}-- %s " "$cat"
     pad=$((44 - ${#cat}))
     for ((p=0; p<pad; p++)); do printf "-"; done
@@ -450,11 +445,8 @@ done
 
 # --- Phase 7: Report -----------------------------------------------------
 printf "\n  ════════════════════════════════════════════════\n\n"
-read -r new_total new_used new_avail <<< "$(get_disk_info)"
-read -r old_total old_used old_avail <<< "$(echo "$total_bytes" | awk '{print 0, 0, 0}')"
-
-# Recalculate from df
-old_info=$(df -g / | awk 'NR==2 {print $2, $3, $4}')
+read -r new_total _new_raw_used new_avail <<< "$(get_disk_info)"
+new_used=$((new_total - new_avail))
 printf "  After:  %d GB used, %d GB free (%d GB total)\n" "$new_used" "$new_avail" "$new_total"
 printf "  Freed:  ${GREEN}${BOLD}~$(bytes_to_human $sel_total)${RESET}\n"
 if [ "$fail_count" -gt 0 ]; then

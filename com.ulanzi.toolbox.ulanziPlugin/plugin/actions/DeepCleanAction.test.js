@@ -14,38 +14,120 @@ vi.mock('fs', () => ({
   unlinkSync: vi.fn(),
 }));
 
-import DeepCleanAction, { parseDfOutput } from './DeepCleanAction.js';
+import DeepCleanAction, {
+  parseDiskutilOutput,
+  generateIdleIcon,
+  generateRunningIcon,
+} from './DeepCleanAction.js';
 import { exec } from 'child_process';
 import { executeCommand } from '../executors/executor.js';
 import { existsSync, readFileSync } from 'fs';
 
-const DF_OUTPUT = [
-  'Filesystem     1G-blocks Used Available Capacity iused    ifree %iused  Mounted on',
-  '/dev/disk3s1s1       228   11         6    65%  458116 68378560    1%   /',
+const DISKUTIL_OUTPUT = [
+  '   Device Identifier:         disk3s1s1',
+  '   Volume Name:               Macintosh HD',
+  '   Container Total Space:     245.1 GB (245107195904 Bytes)',
+  '   Container Free Space:      5.9 GB (5873102848 Bytes)',
 ].join('\n');
 
 function createMockUD() {
   return {
     showAlert: vi.fn(),
-    setStateIcon: vi.fn(),
+    setBaseDataIcon: vi.fn(),
   };
 }
 
-describe('parseDfOutput', () => {
-  it('parses standard macOS df -g output', () => {
-    expect(parseDfOutput(DF_OUTPUT)).toEqual({ free: 6, total: 228 });
+describe('parseDiskutilOutput', () => {
+  it('parses diskutil info / output', () => {
+    expect(parseDiskutilOutput(DISKUTIL_OUTPUT)).toEqual({
+      free: 6,
+      total: 245,
+    });
   });
 
   it('returns null for empty output', () => {
-    expect(parseDfOutput('')).toBeNull();
+    expect(parseDiskutilOutput('')).toBeNull();
   });
 
-  it('returns null for header-only output', () => {
-    expect(parseDfOutput('Filesystem 1G-blocks Used Available')).toBeNull();
+  it('returns null when total is missing', () => {
+    expect(parseDiskutilOutput('   Container Free Space:      5.9 GB')).toBeNull();
+  });
+
+  it('returns null when free is missing', () => {
+    expect(parseDiskutilOutput('   Container Total Space:     245.1 GB')).toBeNull();
   });
 
   it('returns null for non-numeric values', () => {
-    expect(parseDfOutput('header\n/dev/x  abc  def  ghi  50%')).toBeNull();
+    const bad = [
+      '   Container Total Space:     abc GB',
+      '   Container Free Space:      xyz GB',
+    ].join('\n');
+    expect(parseDiskutilOutput(bad)).toBeNull();
+  });
+});
+
+describe('generateIdleIcon', () => {
+  it('returns data URI with base64-encoded SVG', () => {
+    const icon = generateIdleIcon(6, 245);
+    expect(icon).toMatch(/^data:image\/svg\+xml;base64,/);
+    const svg = Buffer.from(icon.replace('data:image/svg+xml;base64,', ''), 'base64').toString(
+      'utf8',
+    );
+    expect(svg).toContain('<svg');
+    expect(svg).toContain('6/245');
+    expect(svg).toContain('GB');
+  });
+
+  it('calculates percentage correctly', () => {
+    const svg = Buffer.from(
+      generateIdleIcon(6, 245).replace('data:image/svg+xml;base64,', ''),
+      'base64',
+    ).toString('utf8');
+    expect(svg).toContain('98% used');
+  });
+
+  it('uses red bar color when usage >= 90%', () => {
+    const svg = Buffer.from(
+      generateIdleIcon(6, 245).replace('data:image/svg+xml;base64,', ''),
+      'base64',
+    ).toString('utf8');
+    expect(svg).toContain('#ff4444');
+  });
+
+  it('uses yellow bar color when usage >= 75% and < 90%', () => {
+    const svg = Buffer.from(
+      generateIdleIcon(50, 200).replace('data:image/svg+xml;base64,', ''),
+      'base64',
+    ).toString('utf8');
+    expect(svg).toContain('#ffaa00');
+  });
+
+  it('uses teal bar color when usage < 75%', () => {
+    const svg = Buffer.from(
+      generateIdleIcon(100, 200).replace('data:image/svg+xml;base64,', ''),
+      'base64',
+    ).toString('utf8');
+    expect(svg).toContain('#00FFE6');
+  });
+
+  it('handles zero total', () => {
+    const svg = Buffer.from(
+      generateIdleIcon(0, 0).replace('data:image/svg+xml;base64,', ''),
+      'base64',
+    ).toString('utf8');
+    expect(svg).toContain('0% used');
+  });
+});
+
+describe('generateRunningIcon', () => {
+  it('returns data URI with base64-encoded SVG', () => {
+    const icon = generateRunningIcon();
+    expect(icon).toMatch(/^data:image\/svg\+xml;base64,/);
+    const svg = Buffer.from(icon.replace('data:image/svg+xml;base64,', ''), 'base64').toString(
+      'utf8',
+    );
+    expect(svg).toContain('<svg');
+    expect(svg).toContain('cleaning');
   });
 });
 
@@ -60,7 +142,7 @@ describe('DeepCleanAction', () => {
     action = new DeepCleanAction('test-context', $UD);
 
     vi.mocked(exec).mockImplementation((cmd, cb) => {
-      cb(null, DF_OUTPUT);
+      cb(null, DISKUTIL_OUTPUT);
     });
   });
 
@@ -70,11 +152,11 @@ describe('DeepCleanAction', () => {
   });
 
   describe('getDiskUsage', () => {
-    it('calls df -g / and returns parsed result', () => {
+    it('calls diskutil info / and returns parsed result', () => {
       const cb = vi.fn();
       action.getDiskUsage(cb);
-      expect(exec).toHaveBeenCalledWith('df -g /', expect.any(Function));
-      expect(cb).toHaveBeenCalledWith({ free: 6, total: 228 });
+      expect(exec).toHaveBeenCalledWith('diskutil info /', expect.any(Function));
+      expect(cb).toHaveBeenCalledWith({ free: 6, total: 245 });
     });
 
     it('returns null on exec error', () => {
@@ -88,26 +170,34 @@ describe('DeepCleanAction', () => {
   });
 
   describe('onAppear', () => {
-    it('updates display immediately', () => {
+    it('updates display immediately with base64 icon', () => {
       action.onAppear();
-      expect($UD.setStateIcon).toHaveBeenCalledWith('test-context', 0, '6/228 GB');
+      expect($UD.setBaseDataIcon).toHaveBeenCalledWith(
+        'test-context',
+        expect.stringMatching(/^data:image\/svg\+xml;base64,/),
+      );
+      const svg = Buffer.from(
+        $UD.setBaseDataIcon.mock.calls[0][1].replace('data:image/svg+xml;base64,', ''),
+        'base64',
+      ).toString('utf8');
+      expect(svg).toContain('6/245');
     });
 
     it('starts polling timer', () => {
       action.onAppear();
-      $UD.setStateIcon.mockClear();
+      $UD.setBaseDataIcon.mockClear();
 
       vi.advanceTimersByTime(60000);
-      expect($UD.setStateIcon).toHaveBeenCalledWith('test-context', 0, '6/228 GB');
+      expect($UD.setBaseDataIcon).toHaveBeenCalled();
     });
 
     it('does not poll while running', () => {
       action.onAppear();
       action.running = true;
-      $UD.setStateIcon.mockClear();
+      $UD.setBaseDataIcon.mockClear();
 
       vi.advanceTimersByTime(60000);
-      expect($UD.setStateIcon).not.toHaveBeenCalled();
+      expect($UD.setBaseDataIcon).not.toHaveBeenCalled();
     });
   });
 
@@ -115,10 +205,10 @@ describe('DeepCleanAction', () => {
     it('stops polling timer', () => {
       action.onAppear();
       action.onDisappear();
-      $UD.setStateIcon.mockClear();
+      $UD.setBaseDataIcon.mockClear();
 
       vi.advanceTimersByTime(120000);
-      expect($UD.setStateIcon).not.toHaveBeenCalled();
+      expect($UD.setBaseDataIcon).not.toHaveBeenCalled();
     });
   });
 
@@ -126,15 +216,15 @@ describe('DeepCleanAction', () => {
     it('stops polling when deactivated', () => {
       action.onAppear();
       action.onActiveChange(false);
-      $UD.setStateIcon.mockClear();
+      $UD.setBaseDataIcon.mockClear();
 
       vi.advanceTimersByTime(120000);
-      expect($UD.setStateIcon).not.toHaveBeenCalled();
+      expect($UD.setBaseDataIcon).not.toHaveBeenCalled();
     });
 
     it('resumes polling when activated', () => {
       action.onActiveChange(true);
-      expect($UD.setStateIcon).toHaveBeenCalledWith('test-context', 0, '6/228 GB');
+      expect($UD.setBaseDataIcon).toHaveBeenCalled();
     });
   });
 
@@ -147,7 +237,11 @@ describe('DeepCleanAction', () => {
 
     it('sets running state icon', async () => {
       await action.execute();
-      expect($UD.setStateIcon).toHaveBeenCalledWith('test-context', 1, '...');
+      const svg = Buffer.from(
+        $UD.setBaseDataIcon.mock.calls[0][1].replace('data:image/svg+xml;base64,', ''),
+        'base64',
+      ).toString('utf8');
+      expect(svg).toContain('cleaning');
     });
 
     it('calls executeCommand with script path', async () => {
@@ -167,24 +261,6 @@ describe('DeepCleanAction', () => {
       );
     });
 
-    it('passes custom label', async () => {
-      action.updateSettings({ label: 'Cleanup' });
-      await action.execute();
-      expect(executeCommand).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.objectContaining({ label: 'Cleanup' }),
-      );
-    });
-
-    it('passes projectsDir as cwd', async () => {
-      action.updateSettings({ projectsDir: '/my/projects' });
-      await action.execute();
-      expect(executeCommand).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.objectContaining({ cwd: '/my/projects' }),
-      );
-    });
-
     it('shows alert on executeCommand failure', async () => {
       vi.mocked(executeCommand).mockRejectedValueOnce(new Error('fail'));
       await action.execute();
@@ -193,13 +269,16 @@ describe('DeepCleanAction', () => {
 
     it('stops polling during execution', async () => {
       action.onAppear();
-      $UD.setStateIcon.mockClear();
+      $UD.setBaseDataIcon.mockClear();
       await action.execute();
 
       vi.advanceTimersByTime(120000);
-      const pollCalls = $UD.setStateIcon.mock.calls.filter(
-        (c) => c[1] === 0 && c[2] === '6/228 GB',
-      );
+      const pollCalls = $UD.setBaseDataIcon.mock.calls.filter((c) => {
+        const svg = Buffer.from(c[1].replace('data:image/svg+xml;base64,', ''), 'base64').toString(
+          'utf8',
+        );
+        return svg.includes('6/245');
+      });
       expect(pollCalls).toHaveLength(0);
     });
   });
@@ -289,16 +368,21 @@ describe('DeepCleanAction', () => {
     it('refreshes disk display', () => {
       action.running = true;
       action.onScriptDone('0');
-      expect($UD.setStateIcon).toHaveBeenCalledWith('test-context', 0, '6/228 GB');
+      expect($UD.setBaseDataIcon).toHaveBeenCalled();
+      const svg = Buffer.from(
+        $UD.setBaseDataIcon.mock.calls[0][1].replace('data:image/svg+xml;base64,', ''),
+        'base64',
+      ).toString('utf8');
+      expect(svg).toContain('6/245');
     });
 
     it('restarts polling', () => {
       action.running = true;
       action.onScriptDone('0');
-      $UD.setStateIcon.mockClear();
+      $UD.setBaseDataIcon.mockClear();
 
       vi.advanceTimersByTime(60000);
-      expect($UD.setStateIcon).toHaveBeenCalled();
+      expect($UD.setBaseDataIcon).toHaveBeenCalled();
     });
   });
 
