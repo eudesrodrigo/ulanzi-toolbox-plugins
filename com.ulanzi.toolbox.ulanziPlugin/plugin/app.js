@@ -4,6 +4,7 @@ import RunCommandAction from './actions/RunCommandAction.js';
 import RunScriptAction from './actions/RunScriptAction.js';
 import SshCommandAction from './actions/SshCommandAction.js';
 import DeepCleanAction from './actions/DeepCleanAction.js';
+import AICleanAction from './actions/AICleanAction.js';
 
 const PLUGIN_UUID = 'com.ulanzi.ulanzistudio.toolbox';
 
@@ -12,6 +13,7 @@ const ACTION_MAP = {
   [`${PLUGIN_UUID}.runscript`]: RunScriptAction,
   [`${PLUGIN_UUID}.sshcommand`]: SshCommandAction,
   [`${PLUGIN_UUID}.deepclean`]: DeepCleanAction,
+  [`${PLUGIN_UUID}.aiclean`]: AICleanAction,
 };
 
 const ACTION_CACHES = {};

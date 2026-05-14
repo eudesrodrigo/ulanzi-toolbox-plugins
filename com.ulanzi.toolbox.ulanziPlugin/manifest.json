@@ -56,6 +56,20 @@
       "SupportedInMultiActions": false,
       "DisableAutomaticStates": true,
       "Controllers": ["Keypad"]
+    },
+    {
+      "Name": "AI Clean",
+      "Icon": "plugin/icons/deep-clean/idle.png",
+      "PropertyInspectorPath": "property-inspector/ai-clean/inspector.html",
+      "States": [
+        { "Name": "Idle", "Image": "plugin/icons/deep-clean/idle.png" },
+        { "Name": "Running", "Image": "plugin/icons/deep-clean/running.png" }
+      ],
+      "Tooltip": "AI-powered disk cleanup via Claude Code",
+      "UUID": "com.ulanzi.ulanzistudio.toolbox.aiclean",
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "Controllers": ["Keypad"]
     }
   ],
   "OS": [{ "Platform": "mac", "MinimumVersion": "12.0" }],

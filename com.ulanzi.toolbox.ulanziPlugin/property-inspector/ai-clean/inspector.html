@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Clean</title>
+  <link rel="stylesheet" href="../../libs/css/uspi.css">
+  <link rel="stylesheet" href="../shared/shared-styles.css">
+</head>
+<body>
+  <div class="uspi-wrapper" id="wrapper">
+
+    <div class="tc-section-title">Terminal</div>
+
+    <div class="uspi-item">
+      <div class="uspi-item-label">Run in</div>
+      <select class="uspi-item-value" id="terminal">
+        <option value="auto">Auto-detect</option>
+        <option value="iterm">iTerm2</option>
+        <option value="terminal">Terminal.app</option>
+      </select>
+    </div>
+
+    <div class="tc-test-section">
+      <button class="tc-test-btn" id="test-btn">▶ Test</button>
+    </div>
+
+  </div>
+
+  <script src="../../libs/js/html-constants.js"></script>
+  <script src="../../libs/js/eventEmitter.js"></script>
+  <script src="../../libs/js/html-utils.js"></script>
+  <script src="../../libs/js/html-ulanziApi.js"></script>
+  <script src="inspector.js"></script>
+</body>
+</html>
