@@ -167,8 +167,8 @@ if command -v docker &>/dev/null && docker info &>/dev/null 2>&1; then
   running=$(docker ps --format '{{.Names}}' 2>/dev/null | wc -l | tr -d ' ')
   warn=""
   [ "$running" -gt 0 ] && warn="$running container(s) running"
-  add_item "Docker" "Docker unused images" "${img_kb:-0}" "docker image prune -a -f" "$warn"
-  add_item "Docker" "Docker build cache" "${build_kb:-0}" "docker builder prune -a -f" ""
+  add_item "Docker" "Docker dangling images" "${img_kb:-0}" "docker image prune -f" "$warn"
+  add_item "Docker" "Docker build cache" "${build_kb:-0}" "docker builder prune -f" ""
 
   # Stopped containers
   stopped=$(docker ps -a --filter "status=exited" -q 2>/dev/null | wc -l | tr -d ' ')
@@ -575,15 +575,6 @@ for ((i=0; i<ITEM_COUNT; i++)); do
     done <<< "${ITEM_WARNINGS[$i]}"
   fi
 done
-
-# Downloads info
-if [ -d "$HOME/Downloads" ]; then
-  dl_kb=$(measure_dir "$HOME/Downloads")
-  dl_bytes=$((dl_kb * 1024))
-  if [ "$dl_bytes" -ge 1073741824 ]; then
-    printf "\n  ${DIM}(i) Downloads: $(bytes_to_human $dl_bytes) — run 'open ~/Downloads' to review${RESET}\n"
-  fi
-fi
 
 # --- Phase 4: Select -----------------------------------------------------
 printf "\n  ───────────────────────────────────────────────────────\n\n"
