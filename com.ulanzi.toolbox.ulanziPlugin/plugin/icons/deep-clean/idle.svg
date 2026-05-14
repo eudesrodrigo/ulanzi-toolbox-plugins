@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 196 196">
+  <rect width="196" height="196" rx="16" fill="#1e1f22"/>
+  <!-- Hard drive body -->
+  <rect x="32" y="50" width="132" height="80" rx="10" fill="#2a2b2f" stroke="#3a3a3a" stroke-width="2"/>
+  <!-- Drive platter -->
+  <circle cx="90" cy="85" r="24" fill="none" stroke="#00FFE6" stroke-width="2" opacity="0.4"/>
+  <circle cx="90" cy="85" r="8" fill="#00FFE6" opacity="0.5"/>
+  <!-- Drive indicator LED -->
+  <circle cx="148" cy="70" r="4" fill="#00FFE6"/>
+  <!-- Capacity bar background -->
+  <rect x="32" y="148" width="132" height="6" rx="3" fill="#2a2b2f"/>
+  <!-- Capacity bar fill -->
+  <rect x="32" y="148" width="86" height="6" rx="3" fill="#00FFE6" opacity="0.6"/>
+</svg>

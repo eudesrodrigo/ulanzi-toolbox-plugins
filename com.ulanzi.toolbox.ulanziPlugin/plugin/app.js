@@ -3,6 +3,7 @@ import { detectTerminal, getAvailableTerminals } from './utils/detect-terminal.j
 import RunCommandAction from './actions/RunCommandAction.js';
 import RunScriptAction from './actions/RunScriptAction.js';
 import SshCommandAction from './actions/SshCommandAction.js';
+import DeepCleanAction from './actions/DeepCleanAction.js';
 
 const PLUGIN_UUID = 'com.ulanzi.ulanzistudio.toolbox';
 
@@ -10,6 +11,7 @@ const ACTION_MAP = {
   [`${PLUGIN_UUID}.runcommand`]: RunCommandAction,
   [`${PLUGIN_UUID}.runscript`]: RunScriptAction,
   [`${PLUGIN_UUID}.sshcommand`]: SshCommandAction,
+  [`${PLUGIN_UUID}.deepclean`]: DeepCleanAction,
 };
 
 const ACTION_CACHES = {};
@@ -39,11 +41,15 @@ function applySettings(jsn) {
 $UD.onAdd((jsn) => {
   if (!ACTION_CACHES[jsn.context]) createAction(jsn);
   applySettings(jsn);
+  ACTION_CACHES[jsn.context]?.onAppear?.();
 });
 
 $UD.onSetActive((jsn) => {
   const instance = ACTION_CACHES[jsn.context];
-  if (instance) instance.active = jsn.active;
+  if (instance) {
+    instance.active = jsn.active;
+    instance.onActiveChange?.(jsn.active);
+  }
 });
 
 $UD.onRun((jsn) => {
@@ -58,6 +64,7 @@ $UD.onRun((jsn) => {
 $UD.onClear((jsn) => {
   if (jsn.param) {
     for (const item of jsn.param) {
+      ACTION_CACHES[item.context]?.onDisappear?.();
       delete ACTION_CACHES[item.context];
     }
   }

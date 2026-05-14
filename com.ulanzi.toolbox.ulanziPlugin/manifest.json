@@ -42,6 +42,20 @@
       "SupportedInMultiActions": true,
       "DisableAutomaticStates": true,
       "Controllers": ["Keypad"]
+    },
+    {
+      "Name": "Deep Clean",
+      "Icon": "plugin/icons/deep-clean/idle.png",
+      "PropertyInspectorPath": "property-inspector/deep-clean/inspector.html",
+      "States": [
+        { "Name": "Idle", "Image": "plugin/icons/deep-clean/idle.png" },
+        { "Name": "Running", "Image": "plugin/icons/deep-clean/running.png" }
+      ],
+      "Tooltip": "Show disk usage and run cleanup",
+      "UUID": "com.ulanzi.ulanzistudio.toolbox.deepclean",
+      "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
+      "Controllers": ["Keypad"]
     }
   ],
   "OS": [{ "Platform": "mac", "MinimumVersion": "12.0" }],

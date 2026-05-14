@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 196 196">
+  <rect width="196" height="196" rx="16" fill="#1e1f22"/>
+  <!-- Broom handle -->
+  <line x1="60" y1="40" x2="136" y2="116" stroke="#00FFE6" stroke-width="4" stroke-linecap="round"/>
+  <!-- Broom bristles -->
+  <path d="M124,104 L148,128 Q156,136 148,144 L132,160 Q124,168 116,160 L100,144 Q92,136 100,128 Z" fill="#00FFE6" opacity="0.6"/>
+  <!-- Sparkles -->
+  <circle cx="52" cy="80" r="3" fill="#00FFE6" opacity="0.8"/>
+  <circle cx="72" cy="56" r="2" fill="#00FFE6" opacity="0.6"/>
+  <circle cx="44" cy="108" r="2.5" fill="#00FFE6" opacity="0.7"/>
+  <!-- Spinner -->
+  <circle cx="152" cy="44" r="12" fill="none" stroke="#00FFE6" stroke-width="2.5" stroke-dasharray="18 56" stroke-linecap="round">
+    <animateTransform attributeName="transform" type="rotate" from="0 152 44" to="360 152 44" dur="1s" repeatCount="indefinite"/>
+  </circle>
+</svg>
